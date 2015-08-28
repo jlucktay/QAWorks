@@ -8,7 +8,7 @@ namespace QAWorks
     [TestClass]
     public class ContactPage
     {
-        IWebDriver iwd;
+        private IWebDriver iwd;
 
         [TestInitialize]
         public void TestInit()
