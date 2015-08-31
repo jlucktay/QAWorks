@@ -8,26 +8,26 @@ namespace QAWorks
     [TestClass]
     public class ContactPage
     {
-        private IWebDriver iwd;
+        private IWebDriver _iwd;
 
         [TestInitialize]
         public void TestInit()
         {
-            iwd = new FirefoxDriver();
-            iwd.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(10));
-            iwd.Manage().Window.Maximize();
+            _iwd = new FirefoxDriver();
+            _iwd.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(10));
+            _iwd.Manage().Window.Maximize();
 
-            iwd.Navigate().GoToUrl("qaworks.com");
-            Assert.AreEqual("Home Page - QAWorks", iwd.Title);
+            _iwd.Navigate().GoToUrl("qaworks.com");
+            Assert.AreEqual("Home Page - QAWorks", _iwd.Title);
 
-            iwd.FindElement(By.LinkText("Contact")).Click();
-            Assert.AreEqual("Contact Us - QAWorks", iwd.Title);
+            _iwd.FindElement(By.LinkText("Contact")).Click();
+            Assert.AreEqual("Contact Us - QAWorks", _iwd.Title);
         }
 
         [TestCleanup]
         public void TestClean()
         {
-            iwd.Close();
+            _iwd.Close();
         }
 
         /// <summary>
@@ -36,14 +36,22 @@ namespace QAWorks
         [TestMethod]
         public void CheckDirections()
         {
-            string info1 = iwd.FindElement(By.Id("ContactInfoBlock1")).Text;
-            Assert.IsTrue(info1.Contains("Office Location"));
+            IWebElement info1 = null, info2 = null, info3 = null;
 
-            string info2 = iwd.FindElement(By.Id("ContactInfoBlock2")).Text;
-            Assert.IsTrue(info2.Contains("Directions"));
+            try
+            {
+                info1 = _iwd.FindElement(By.Id("ContactInfoBlock1"));
+                info2 = _iwd.FindElement(By.Id("ContactInfoBlock2"));
+                info3 = _iwd.FindElement(By.Id("ContactInfoBlock3"));
+            }
+            catch (NoSuchElementException nsee)
+            {
+                Assert.Fail("Element not found: " + nsee.Message);
+            }
 
-            string info3 = iwd.FindElement(By.Id("ContactInfoBlock3")).Text;
-            Assert.IsTrue(info3.Contains("M25"));
+            Assert.IsTrue(info1.Text.Contains("Office Location"));
+            Assert.IsTrue(info2.Text.Contains("Directions"));
+            Assert.IsTrue(info3.Text.Contains("M25"));
         }
 
         /// <summary>
@@ -52,20 +60,27 @@ namespace QAWorks
         [TestMethod]
         public void SubmitQuery()
         {
-            IWebElement iweName = iwd.FindElement(By.Id("ctl00_MainContent_NameBox"));
+            IWebElement iweName = null, iweEmail = null, iweMessage = null, iweSend = null;
+
+            try
+            {
+                iweName = _iwd.FindElement(By.Id("ctl00_MainContent_NameBox"));
+                iweEmail = _iwd.FindElement(By.Id("ctl00_MainContent_EmailBox"));
+                iweMessage = _iwd.FindElement(By.Id("ctl00_MainContent_MessageBox"));
+                iweSend = _iwd.FindElement(By.Id("ctl00_MainContent_SendButton"));
+            }
+            catch (NoSuchElementException nsee)
+            {
+                Assert.Fail("Element not found: " + nsee.Message);
+            }
+
             iweName.SendKeys("J. Bloggs");
-
-            IWebElement iweEmail = iwd.FindElement(By.Id("ctl00_MainContent_EmailBox"));
             iweEmail.SendKeys("j.bloggs@qaworks.com");
-
-            IWebElement iweMessage = iwd.FindElement(By.Id("ctl00_MainContent_MessageBox"));
             iweMessage.SendKeys("Please contact me, I want to find out more!");
-
-            IWebElement iweSend = iwd.FindElement(By.Id("ctl00_MainContent_SendButton"));
             iweSend.Click();
 
             // After the form is submitted, the page title changes to just "QAWorks" (without "Contact Us".)
-            Assert.AreEqual("QAWorks", iwd.Title);
+            Assert.AreEqual("QAWorks", _iwd.Title);
         }
     }
 }
